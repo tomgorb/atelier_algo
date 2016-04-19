@@ -1,0 +1,26 @@
+Bribe The Prisoners
+
+Problem:
+
+You are in charge of a prison with P number of cells in a straight line. Each cell has a window on the walls it shares with the neighbor cells. You need to release a certain number of prisoners, but when you do, word of the release spreads and the prisoners riot and cause a ruckus. But they only can do so if they hear about the release, and they only hear about the release if word gets passed to them from cell to cell. When a prisoner riots you have to bribe them with a gold coin.
+
+So, given a total number of cells, and a list of prisoners to release (represented by their cell number), what is the minimum gold you can spend? 
+
+Musings:
+
+News of the first release will pass through each cell in the prison, as there are no empty cells to arrest it. We don’t have to pay the released prisoner, so he first release will always cost P – 1 gold. The second will vary depending on how many cells the first release has cut off. In general, we want to cut off as many cells as possible, yet this is not an easy thing to determine with an algorithm.
+
+If we have 20 cells and we need to release 4 prisoners: [1, 4, 8, 11]: We should release prisoner 11 first, as that will cut the cost of subsequent releases by the most. It is tempting to deduce that the prisoner closest to the center will always be the best choice, but this is not the case. If we instead had [1,4,11,12], 11 is still closest to the center, but 12 cuts off much more of the prison. So we can’t easily determine which prisoner will be the cheapest to release without considering the cost of each subsequent release.
+
+Each time we release a prisoner, it creates a sub problem that looks exactly like the original problem. If the example above, after we release prisoner 11, we have a prison of 10 cells, and three prisoners to release from it. With that observation, along with realizing that releasing one prisoner from a prison of size n will always cost n – 1 gold, we can create a recursive algorithm to solve the problem.
+
+For each prisoner we need to release:
+Cost =
+Number of cells – 1 + (cost to release current prisoner)
++ Cost of releasing all prisoners to the right (recursive call)
++ Cost of releasing all prisoners to the left (recursive call)
+
+This will work for small inputs, but as the input grows in size, it takes much too long to be practical. Luckily there is a simple programming trick that lets us solve much larger problems.
+
+Consider a prison of size 100 with 40 prisoners to release: [2,4,6,12,15,19,24,34, etc…]
+We start by calculating the cost of releasing prisoner 2. To do this, we need to determine the cheapest way to release 39 prisoners from [4, 6, 12, etc]. After testing the cost to release prisoner 4, we will calculate the cheapest way to release 38 prisoners [6, 12, 15, 19, 24, 34, etc]. Eventually we will solve that problem (though it will take a lot of recursion to do so). Then we will start again on the outside most loop, and consider what happens when we first release prisoner 4. Our first step will be to look at the left, which is easy as it is just one prisoner. Then we consider what it will cost to release 38 prisoners [6, 12, 15, 19, 24, 34]. Look familiar? We’ve already solved that problem, so if we had stashed that answer somewhere we could just look it up and move on. This situation will come up thousands of times in a large input like this, and solving the problem for a large input becomes possible. This is a program technique called memorization, and the problem at large is one of Dynamic Programming.
